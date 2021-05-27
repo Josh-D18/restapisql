@@ -4,19 +4,19 @@ const bcrypt = require('bcrypt');
 
 // Middleware to authenticate the request using Basic Auth.
 exports.authenticateUser = async (req, res, next) => {
-  // TODO
+    // TODO
     const credentials = auth(req);
     let message;
 
     if (credentials) {
-        const user = await User.findOne({ where: {firstName: credentials.firstName} });
+        const user = await User.findOne({ where: {firstName: credentials.name} });
         if (user) {
             const authenticated = bcrypt
-            .compareSync(credentials.pass, user.confirmedPassword);
+            .compareSync(credentials.pass, user.password);
             if (authenticated) {
-            req.currentUser = user;
+                req.currentUser = user;
             } else {
-            message = `Authentication failure for name: ${user.firstname}`;
+            message = `Authentication failure for name: ${credentials.name}`;
             }
         } else {
             message = `User not found for name: ${credentials.name}`;

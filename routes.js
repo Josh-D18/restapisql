@@ -64,7 +64,7 @@ router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req
         estimatedTime: req.body.estimatedTime,
         materialsNeeded: req.body.materialsNeeded
     })
-    res.location('/api/courses' + course.id).status(201)
+    res.location('/api/courses').res.json(course).status(201)
 }));
 
 router.put('/api/courses/:id', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
