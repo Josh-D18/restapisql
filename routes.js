@@ -27,7 +27,7 @@ router.get('/', (req, res, next) => {
 
 router.get('/api/users', authenticateUser, asyncHandler( async (req, res, next) => {
     const users = await User.findAll();
-    res.json(users).status(200)
+    res.json(users).status(200);
 }));
 
 
@@ -46,7 +46,7 @@ router.post('/api/users', jsonParser, asyncHandler(async(req, res, next) => {
             password: req.body.password
         })
         
-        res.location('/').status(201).end()
+        res.location('/').status(201).end();
     } else{
         res.status(400);
     }
@@ -69,15 +69,16 @@ router.get('/api/courses/:id', asyncHandler(async(req, res, next) => {
 
 
 router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
+    console.log(req)
     if (req.body.title && req.body.description){
         const course = await Course.create({
-            userId: req.body.id,
+            userId: req.currentUser.dataValues.id,
             title: req.body.title,
             description: req.body.description,
             estimatedTime: req.body.estimatedTime,
             materialsNeeded: req.body.materialsNeeded
         })
-        res.location('/api/courses').res.json(course).status(201)
+        res.location('/api/courses').res.json(course).status(201).end();
     }else {
         res.status(400)
     }
@@ -91,7 +92,7 @@ router.put('/api/courses/:id', jsonParser, authenticateUser, asyncHandler(async(
             description: req.body.description,
             estimatedTime: req.body.estimatedTime,
             materialsNeeded: req.body.materialsNeeded
-        }).status(204)
+        }).status(204).end();
     }else {
         res.status(400);
     }
