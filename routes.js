@@ -69,7 +69,6 @@ router.get('/api/courses/:id', asyncHandler(async(req, res, next) => {
 
 
 router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
-    console.log(req)
     if (req.body.title && req.body.description){
         const course = await Course.create({
             userId: req.currentUser.dataValues.id,
