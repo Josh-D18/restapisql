@@ -9,14 +9,15 @@ exports.authenticateUser = async (req, res, next) => {
     let message;
 
     if (credentials) {
-        const user = await User.findOne({ where: {firstName: credentials.name} });
+        const user = await User.findOne({ where: {emailAddress: credentials.name} });
         if (user) {
+            user.password = bcrypt.hashSync(credentials.pass, 10);
             const authenticated = bcrypt
             .compareSync(credentials.pass, user.password);
             if (authenticated) {
                 req.currentUser = user;
             } else {
-            message = `Authentication failure for name: ${credentials.name}`;
+                message = `Authentication failure for name: ${credentials.name}`;
             }
         } else {
             message = `User not found for name: ${credentials.name}`;

@@ -36,7 +36,7 @@ router.post('/api/users', jsonParser, asyncHandler(async(req, res, next) => {
         if (!req.body.password){
             error.push('Please provide a value for "password"');
         } else {
-            req.body.password = bcrypt.hashSync(req.body.password, 10);
+            req.body.password = bcrypt.hashSync(req.body.password, 60);
         }
         
         const user = await User.create({
@@ -69,15 +69,16 @@ router.get('/api/courses/:id', asyncHandler(async(req, res, next) => {
 
 
 router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
+    console.log(req.currentUser.dataValues.id)
     if (req.body.title && req.body.description){
         const course = await Course.create({
-            userId: req.currentUser.dataValues.id,
+            UserId: req.currentUser.dataValues.id,
             title: req.body.title,
             description: req.body.description,
             estimatedTime: req.body.estimatedTime,
             materialsNeeded: req.body.materialsNeeded
         })
-        res.location('/api/courses').res.json(course).status(201).end();
+        res.location('/api/courses').status(201).end();
     }else {
         res.status(400)
     }
@@ -85,13 +86,14 @@ router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req
 
 router.put('/api/courses/:id', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
     const course = await Course.findByPk(req.params.id);
-    if (course && req.body.title && req.body.description){
+    if (req.body.title && req.body.description){
         course.update({
             title: req.body.title,
             description: req.body.description,
             estimatedTime: req.body.estimatedTime,
             materialsNeeded: req.body.materialsNeeded
-        }).status(204).end();
+        })
+        res.status(204).end();
     }else {
         res.status(400);
     }
@@ -99,7 +101,8 @@ router.put('/api/courses/:id', jsonParser, authenticateUser, asyncHandler(async(
 
 router.delete('/api/courses/:id', authenticateUser, asyncHandler(async(req, res, next) => {
     const course = await Course.findByPk(req.params.id);
-    course.destroy().end()
+    course.destroy()
+    res.end()
 }));
 
 
