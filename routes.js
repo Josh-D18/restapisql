@@ -33,12 +33,6 @@ router.get('/api/users', authenticateUser, asyncHandler( async (req, res, next) 
 
 router.post('/api/users', jsonParser, asyncHandler(async(req, res, next) => {
     if (req.body.firstName && req.body.lastName && req.body.emailAddress && req.body.password){
-        if (!req.body.password){
-            error.push('Please provide a value for "password"');
-        } else {
-            req.body.password = bcrypt.hashSync(req.body.password, 60);
-        }
-        
         const user = await User.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
