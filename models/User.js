@@ -68,6 +68,15 @@ module.exports = function(sequelize) {
         User.hasMany(models.Course, {
             foreignKey: {
                 allowNull: false,
+                fieldName:'UserId',
+                validate:{
+                    notNull:{
+                        msg:"Course owner cannot be blank"
+                    },
+                    notEmpty:{
+                        msg:"Course owner cannot be blank"
+                    }
+                }   
             }
         })
     }

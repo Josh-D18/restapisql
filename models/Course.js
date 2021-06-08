@@ -62,6 +62,15 @@ module.exports = function(sequelize) {
         Course.belongsTo(models.User, {
             foreignKey:{
                 allowNull: false,
+                fieldName:'UserId',
+                validate:{
+                    notNull:{
+                        msg:"Course owner cannot be blank"
+                    },
+                    notEmpty:{
+                        msg:"Course owner cannot be blank"
+                    }
+                }   
             }
         });
     };

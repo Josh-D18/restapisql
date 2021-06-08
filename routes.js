@@ -26,13 +26,22 @@ router.get('/', (req, res, next) => {
 //  User Routes
 
 router.get('/api/users', authenticateUser, asyncHandler( async (req, res, next) => {
-    const users = await User.findAll();
-    res.json(users).status(200);
+    const user = req.currentUser;
+    res.json({
+        "id": user.currentUser,
+        firstName:user.firstName,
+        lastName:user.lastName,
+        email: user.emailAddress,
+        "password": user.password,
+        "createdAt": user.createdAt,
+        "updatedAt": user.updatedAt,
+        userId:user.id
+    }).status(200);
 }));
 
 
 router.post('/api/users', jsonParser, asyncHandler(async(req, res, next) => {
-    if (req.body.firstName && req.body.lastName && req.body.emailAddress && req.body.password){
+    try {
         const user = await User.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
@@ -41,8 +50,13 @@ router.post('/api/users', jsonParser, asyncHandler(async(req, res, next) => {
         })
         
         res.location('/').status(201).end();
-    } else{
-        res.status(400);
+    } catch (error) {
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map(err => err.message);
+            res.status(400).json({ errors });   
+        } else {
+            throw error;
+        }
     }
 }));
 
@@ -64,32 +78,29 @@ router.get('/api/courses/:id', asyncHandler(async(req, res, next) => {
 
 router.post('/api/courses', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
     console.log(req.currentUser.dataValues.id)
-    if (req.body.title && req.body.description){
-        const course = await Course.create({
-            UserId: req.currentUser.dataValues.id,
-            title: req.body.title,
-            description: req.body.description,
-            estimatedTime: req.body.estimatedTime,
-            materialsNeeded: req.body.materialsNeeded
-        })
-        res.location('/api/courses').status(201).end();
-    }else {
-        res.status(400)
-    }
+        try{
+            const course = await Course.create(req.body);
+                if(course.UserId == req.currentUser.dataValues.id) {
+                    res.status(201).location('/api/courses/'+ course.id ).end();
+                } else{
+                    res.status(401).end();
+                }
+        } catch(err){
+            res.status(400);
+        }
 }));
 
 router.put('/api/courses/:id', jsonParser, authenticateUser, asyncHandler(async(req, res, next) => {
     const course = await Course.findByPk(req.params.id);
-    if (req.body.title && req.body.description){
-        course.update({
-            title: req.body.title,
-            description: req.body.description,
-            estimatedTime: req.body.estimatedTime,
-            materialsNeeded: req.body.materialsNeeded
-        })
-        res.status(204).end();
-    }else {
-        res.status(400);
+    try{
+        if(course.UserId == req.currentUser.dataValues.id){
+            course.update(req.body)
+            res.status(204).end();
+        } else{
+            res.status(401).end();
+        }
+    }catch(err){
+        res.status(400).json({ err })
     }
 }));
 
@@ -98,9 +109,6 @@ router.delete('/api/courses/:id', authenticateUser, asyncHandler(async(req, res,
     course.destroy()
     res.end()
 }));
-
-
-
 
 
 
