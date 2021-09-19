@@ -107,7 +107,7 @@ router.put(
         res.status(401).end();
       }
     } catch (err) {
-      res.status(400).json({ errors });
+      res.status(400).json({ message: err });
     }
   })
 );
