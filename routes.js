@@ -6,6 +6,7 @@ const jsonParser = bodyParser.json();
 const { authenticateUser } = require("./middleware/auth-user");
 const bcrypt = require("bcrypt");
 
+// Helper Function
 function asyncHandler(cb) {
   return async (req, res, next) => {
     try {
@@ -25,19 +26,22 @@ router.get("/", (req, res, next) => {
 
 //  User Routes
 
+// Get all Users
 router.get(
   "/api/users",
   authenticateUser,
   asyncHandler(async (req, res, next) => {
     try {
-      const user = req.currentUser;
-      res.json(req.body).status(200);
+      const users = await User.findAll();
+      console.log(users);
+      res.json(users).status(200);
     } catch (err) {
       res.status(400).json({ message: err });
     }
   })
 );
 
+// Create a User
 router.post(
   "/api/users",
   jsonParser,
@@ -54,6 +58,7 @@ router.post(
 
 //  Course Routes
 
+// Get all courses
 router.get(
   "/api/courses",
   asyncHandler(async (req, res, next) => {
@@ -62,6 +67,7 @@ router.get(
   })
 );
 
+// Get single course
 router.get(
   "/api/courses/:id",
   asyncHandler(async (req, res, next) => {
@@ -70,6 +76,7 @@ router.get(
   })
 );
 
+// Add a course
 router.post(
   "/api/courses",
   jsonParser,
@@ -77,21 +84,17 @@ router.post(
   asyncHandler(async (req, res, next) => {
     try {
       const course = await Course.create(req.body);
-      if (course.UserId == req.currentUser.dataValues.id) {
-        res
-          .status(201)
-          .location("/api/courses/" + course.id)
-          .end();
-      } else {
-        res.status(401).end();
-        console.log(req.currentUser.dataValues.id, course);
-      }
+      res
+        .status(201)
+        .location("/api/courses/" + course.id)
+        .end();
     } catch (err) {
-      res.status(400);
+      res.status(400).end();
     }
   })
 );
 
+// Update Course
 router.put(
   "/api/courses/:id",
   jsonParser,
@@ -99,12 +102,12 @@ router.put(
   asyncHandler(async (req, res, next) => {
     try {
       const course = await Course.findByPk(req.params.id);
-      if (course.UserId == req.currentUser.dataValues.id) {
+      if (course.userId == req.currentUser.dataValues.id) {
         course.update(req.body);
         res.status(204).end();
       } else {
-        console.log(req.currentUser.dataValues.id, course);
-        res.status(401).end();
+        console.log(req.currentUser.dataValues.id, course.userId);
+        res.status(401).json({ message: "Error Updating" }).end();
       }
     } catch (err) {
       res.status(400).json({ message: err });
@@ -112,13 +115,18 @@ router.put(
   })
 );
 
+// Delete a course
 router.delete(
   "/api/courses/:id",
   authenticateUser,
   asyncHandler(async (req, res, next) => {
-    const course = await Course.findByPk(req.params.id);
-    course.destroy();
-    res.status(204).end();
+    try {
+      const course = await Course.findByPk(req.params.id);
+      course.destroy();
+      res.status(204).end();
+    } catch (err) {
+      res.status(400).json({ message: "error deleting course" });
+    }
   })
 );
 
