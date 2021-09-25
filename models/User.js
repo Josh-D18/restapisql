@@ -34,7 +34,9 @@ module.exports = function (sequelize) {
         type: DataTypes.STRING,
         validate: {
           isEmail: true,
-          notEmpty: true,
+          notEmpty: {
+            msg: "email cannot be empty",
+          },
           notNull: {
             msg: 'Please provide a "email"',
           },
@@ -44,7 +46,9 @@ module.exports = function (sequelize) {
       password: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true,
+          notEmpty: {
+            msg: "password cannot be empty",
+          },
           notNull: {
             msg: 'Please provide a "password"',
           },

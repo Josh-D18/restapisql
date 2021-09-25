@@ -33,13 +33,14 @@ router.get(
   asyncHandler(async (req, res, next) => {
     try {
       const users = await User.findAll();
-      console.log(users);
       res.json(users).status(200);
     } catch (err) {
-      res.status(400).json({ message: err });
+      res.status(400).json({ message: err.errors[0].message });
     }
   })
 );
+
+// router.get();
 
 // Create a User
 router.post(
@@ -48,10 +49,10 @@ router.post(
   asyncHandler(async (req, res, next) => {
     try {
       const user = await User.create(req.body);
-      res.location("/").status(201).json(user);
-    } catch (error) {
+      res.location("/").status(201).json();
+    } catch (err) {
       console.log(req.body);
-      res.status(400).json({ message: error });
+      res.status(400).json({ message: err.errors[0].message });
     }
   })
 );
@@ -62,7 +63,7 @@ router.post(
 router.get(
   "/api/courses",
   asyncHandler(async (req, res, next) => {
-    const courses = await Course.findAll();
+    const courses = await Course.findAll({ include: [{ model: User }] });
     res.json(courses).status(200);
   })
 );
@@ -71,7 +72,9 @@ router.get(
 router.get(
   "/api/courses/:id",
   asyncHandler(async (req, res, next) => {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id, {
+      include: [{ model: User }],
+    });
     res.json(course).status(200);
   })
 );
@@ -89,7 +92,7 @@ router.post(
         .location("/api/courses/" + course.id)
         .end();
     } catch (err) {
-      res.status(400).end();
+      res.status(400).json({ message: err.errors[0].message }).end();
     }
   })
 );
@@ -110,7 +113,7 @@ router.put(
         res.status(401).json({ message: "Error Updating" }).end();
       }
     } catch (err) {
-      res.status(400).json({ message: err });
+      res.status(400).json({ message: err.errors[0].message });
     }
   })
 );
