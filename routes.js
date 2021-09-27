@@ -96,24 +96,29 @@ router.post(
     }
   })
 );
-
+// ___
 // Update Course
 router.put(
   "/api/courses/:id",
   jsonParser,
   authenticateUser,
   asyncHandler(async (req, res, next) => {
-    try {
-      const course = await Course.findByPk(req.params.id);
-      if (course.userId == req.currentUser.dataValues.id) {
-        course.update(req.body);
-        res.status(204).end();
-      } else {
-        console.log(req.currentUser.dataValues.id, course.userId);
-        res.status(401).json({ message: "Error Updating" }).end();
-      }
-    } catch (err) {
-      res.status(400).json({ message: err.errors[0].message });
+    const course = await Course.findByPk(req.params.id);
+    if (course.userId == req.currentUser.dataValues.id) {
+      Course.update(
+        {
+          ...req.body,
+        },
+        { where: { id: req.params.id } }
+      )
+        .then(() => {
+          res.status(204).end();
+        })
+        .catch((err) =>
+          res.status(400).json({ message: err.errors[0].message })
+        );
+    } else {
+      res.status(400).json({ message: "This Is Not Your Course!" });
     }
   })
 );
