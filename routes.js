@@ -1,10 +1,10 @@
+"use strict";
 const express = require("express");
 const router = express.Router();
 const { User, Course } = require("./models/index");
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
 const { authenticateUser } = require("./middleware/auth-user");
-const bcrypt = require("bcrypt");
 
 // Helper Function
 function asyncHandler(cb) {
@@ -15,6 +15,19 @@ function asyncHandler(cb) {
       next(error);
     }
   };
+}
+
+let errorUser = [];
+let errorCourse = [];
+
+if (errorCourse.length > 2) {
+  errorCourse.slice(4);
+  console.log("Hello");
+}
+
+if (errorUser.length > 2) {
+  errorCourse.slice();
+  console.log("Hello");
 }
 
 // setup a friendly greeting for the root route
@@ -32,7 +45,7 @@ router.get(
   authenticateUser,
   asyncHandler(async (req, res, next) => {
     try {
-      const users = await User.findAll();
+      const users = await User.findAll({ where: { id: req.currentUser.id } });
       res.json(users).status(200);
     } catch (err) {
       res.status(400).json({ message: err.errors[0].message });
@@ -51,8 +64,10 @@ router.post(
       const user = await User.create(req.body);
       res.location("/").status(201).json();
     } catch (err) {
-      console.log(req.body);
-      res.status(400).json({ message: err.errors[0].message });
+      for (let i = 0; i < err.errors.length; i++) {
+        errorUser.push(err.errors[i].message);
+      }
+      res.status(400).json({ message: errorUser });
     }
   })
 );
@@ -92,7 +107,16 @@ router.post(
         .location("/api/courses/" + course.id)
         .end();
     } catch (err) {
-      res.status(400).json({ message: err.errors[0].message }).end();
+      for (let i = 0; i < err.errors.length; i++) {
+        errorCourse.push(err.errors[i].message);
+      }
+      if (errorCourse.length > 2) {
+        errorCourse.splice(2, 3);
+      } else if (errorCourse.length > 1) {
+        errorCourse.splice(1, 2);
+      }
+
+      res.status(400).json({ message: errorCourse });
     }
   })
 );
@@ -114,9 +138,12 @@ router.put(
         .then(() => {
           res.status(204).end();
         })
-        .catch((err) =>
-          res.status(400).json({ message: err.errors[0].message })
-        );
+        .catch((err) => {
+          for (let i = 0; i < err.errors.length; i++) {
+            errorCourse.push(err.errors[i].message);
+          }
+          res.status(400).json({ message: errorCourse });
+        });
     } else {
       res.status(400).json({ message: "This Is Not Your Course!" });
     }
