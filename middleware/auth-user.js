@@ -31,7 +31,6 @@ exports.authenticateUser = async (req, res, next) => {
 
   if (message) {
     console.warn(message);
-    console.log(credentials.pass);
     res.status(401).json({ message: "Access Denied" });
   } else {
     next();
