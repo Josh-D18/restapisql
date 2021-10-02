@@ -17,19 +17,6 @@ function asyncHandler(cb) {
   };
 }
 
-let errorUser = [];
-let errorCourse = [];
-
-if (errorCourse.length > 2) {
-  errorCourse.slice(4);
-  console.log("Hello");
-}
-
-if (errorUser.length > 2) {
-  errorCourse.slice();
-  console.log("Hello");
-}
-
 // setup a friendly greeting for the root route
 router.get("/", (req, res, next) => {
   res.json({
@@ -53,8 +40,6 @@ router.get(
   })
 );
 
-// router.get();
-
 // Create a User
 router.post(
   "/api/users",
@@ -64,10 +49,11 @@ router.post(
       const user = await User.create(req.body);
       res.location("/").status(201).json();
     } catch (err) {
+      let errors = [];
       for (let i = 0; i < err.errors.length; i++) {
-        errorUser.push(err.errors[i].message);
+        errors.push(err.errors[i].message);
       }
-      res.status(400).json({ message: errorUser });
+      res.status(400).json({ message: errors });
     }
   })
 );
@@ -107,20 +93,15 @@ router.post(
         .location("/api/courses/" + course.id)
         .end();
     } catch (err) {
+      let errors = [];
       for (let i = 0; i < err.errors.length; i++) {
-        errorCourse.push(err.errors[i].message);
+        errors.push(err.errors[i].message);
       }
-      if (errorCourse.length > 2) {
-        errorCourse.splice(2, 3);
-      } else if (errorCourse.length > 1) {
-        errorCourse.splice(1, 2);
-      }
-
-      res.status(400).json({ message: errorCourse });
+      res.status(400).json({ message: errors });
     }
   })
 );
-// ___
+
 // Update Course
 router.put(
   "/api/courses/:id",
@@ -139,10 +120,11 @@ router.put(
           res.status(204).end();
         })
         .catch((err) => {
+          let errors = [];
           for (let i = 0; i < err.errors.length; i++) {
-            errorCourse.push(err.errors[i].message);
+            errors.push(err.errors[i].message);
           }
-          res.status(400).json({ message: errorCourse });
+          res.status(400).json({ message: errors });
         });
     } else {
       res.status(400).json({ message: "This Is Not Your Course!" });

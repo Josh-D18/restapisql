@@ -1,5 +1,5 @@
 const auth = require("basic-auth");
-const { User, Course } = require("../models/index");
+const { User } = require("../models/index");
 const bcrypt = require("bcrypt");
 
 // Middleware to authenticate the request using Basic Auth.
@@ -31,6 +31,7 @@ exports.authenticateUser = async (req, res, next) => {
 
   if (message) {
     console.warn(message);
+    console.log(credentials.pass);
     res.status(401).json({ message: "Access Denied" });
   } else {
     next();
