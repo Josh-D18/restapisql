@@ -87,7 +87,10 @@ router.post(
   authenticateUser,
   asyncHandler(async (req, res, next) => {
     try {
-      const course = await Course.create(req.body);
+      const course = await Course.create({
+        ...req.body,
+        userId: req.currentUser.id,
+      });
       res
         .status(201)
         .location("/api/courses/" + course.id)

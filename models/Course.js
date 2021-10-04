@@ -32,21 +32,11 @@ module.exports = function (sequelize) {
       estimatedTime: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          notNull: {
-            msg: "A materials needed description is required",
-          },
-        },
       },
 
       materialsNeeded: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          notNull: {
-            msg: "A materials needed description is required",
-          },
-        },
       },
     },
     {
